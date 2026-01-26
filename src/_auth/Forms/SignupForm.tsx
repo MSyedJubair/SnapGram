@@ -8,6 +8,8 @@ import { SignupValidation } from "@/lib/Validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { createUserAccount } from "@/lib/appwrite/api";
+import { toast } from "sonner"
 
 
 
@@ -23,8 +25,11 @@ const SignupForm = () => {
   });
 
   function onSubmit(data: z.infer<typeof SignupValidation>) {
-    // Do something with the form values.
-    console.log(data);
+    const newUser = createUserAccount(data)
+
+    if (!newUser) {toast('Uhh.. An error has occured')}
+    
+    console.log(newUser);
   }
   return (
     <div className="w-full flex flex-col justify-center items-center">

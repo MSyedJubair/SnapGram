@@ -6,11 +6,13 @@ import SigninForm from './_auth/Forms/SigninForm'
 import SignupForm from './_auth/Forms/SignupForm'
 import AuthLayout from './_auth/AuthLayout'
 import RootLayout from './_root/RootLayout'
+import { Toaster } from "@/components/ui/sonner"
 
 
 const App = () => {
   return (
     <main className='flex h-screen'>
+      <Toaster />
       <Routes>
         // Private Routes
         <Route element={<AuthLayout/>}>
