@@ -139,7 +139,8 @@ const SignupForm = () => {
       </Card>
 
       <div className="text-gray-400 mt-4">
-        Already have an account? {<Link to={'/sign-in'}><span className="text-blue-400">Login</span></Link>}
+        Already have an account? {<Link to={'/sign-in'}>npm install appwrite
+<span className="text-blue-400">Login</span></Link>}
       </div>
     </div>
   );
