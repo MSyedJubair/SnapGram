@@ -1,6 +1,7 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form" 
+import { useNavigate } from "react-router-dom";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -8,12 +9,20 @@ import { SignupValidation } from "@/lib/Validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { createUserAccount } from "@/lib/appwrite/api";
 import { toast } from "sonner"
+import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
+import { useUserContext } from "@/context/AuthContext";
 
 
 
 const SignupForm = () => {
+  const navigate = useNavigate()
+
+  const { mutateAsync: CreateUserAccount, isPending: isCreatingUser } = useCreateUserAccount()
+  const { mutateAsync: signInAccount, isPending: isSigningIn } = useSignInAccount()
+  const { checkAuthUser, isLoading: isUserLoading} = useUserContext()
+
+
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
     defaultValues: {
@@ -24,12 +33,34 @@ const SignupForm = () => {
     },
   });
 
-  function onSubmit(data: z.infer<typeof SignupValidation>) {
-    const newUser = createUserAccount(data)
+  async function onSubmit(data: z.infer<typeof SignupValidation>) {
+    const newUser = await CreateUserAccount(data)
 
-    if (!newUser) {toast('Uhh.. An error has occured')}
-    
-    console.log(newUser);
+    if (!newUser) {
+      toast('Failed to create account')
+      return
+    }
+
+    // const session = await signInAccount({
+    //   email: data.email, 
+    //   password:data.password
+    // })
+
+    // if (!session) {
+    //   toast('Failed to sign in')
+    //   return
+    // }
+    // wait for Appwrite session to fully register
+    await new Promise((res) => setTimeout(res, 300))
+
+    const isLoggedIn = await checkAuthUser()
+
+    if (isLoggedIn){
+      form.reset()
+      navigate('/')
+    } else {
+      toast('Failed to authenticate user')
+    }
   }
   return (
     <div className="w-full flex flex-col justify-center items-center">
@@ -133,11 +164,24 @@ const SignupForm = () => {
               type="button"
               variant="outline"
               onClick={() => form.reset()}
+              disabled={isCreatingUser || isSigningIn || isUserLoading}
             >
               Reset
             </Button>
-            <Button type="submit" form="form-rhf-demo">
-              Submit
+            <Button 
+              type="submit" 
+              form="form-rhf-demo"
+              disabled={isCreatingUser || isSigningIn || isUserLoading}
+            >
+              {isCreatingUser ? (
+                "Creating Account..."
+              ) : isSigningIn ? (
+                "Signing In..."
+              ) : isUserLoading ? (
+                "Verifying..."
+              ) : (
+                "Sign Up"
+              )}
             </Button>
           </Field>
         </CardFooter>
