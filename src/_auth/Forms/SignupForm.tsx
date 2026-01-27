@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { toast } from "sonner"
-import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
+import { useCreateUserAccount } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
 
 
@@ -19,7 +19,6 @@ const SignupForm = () => {
   const navigate = useNavigate()
 
   const { mutateAsync: CreateUserAccount, isPending: isCreatingUser } = useCreateUserAccount()
-  const { mutateAsync: signInAccount, isPending: isSigningIn } = useSignInAccount()
   const { checkAuthUser, isLoading: isUserLoading} = useUserContext()
 
 
@@ -164,19 +163,17 @@ const SignupForm = () => {
               type="button"
               variant="outline"
               onClick={() => form.reset()}
-              disabled={isCreatingUser || isSigningIn || isUserLoading}
+              disabled={isCreatingUser || isUserLoading}
             >
               Reset
             </Button>
             <Button 
               type="submit" 
               form="form-rhf-demo"
-              disabled={isCreatingUser || isSigningIn || isUserLoading}
+              disabled={isCreatingUser || isUserLoading}
             >
               {isCreatingUser ? (
                 "Creating Account..."
-              ) : isSigningIn ? (
-                "Signing In..."
               ) : isUserLoading ? (
                 "Verifying..."
               ) : (
