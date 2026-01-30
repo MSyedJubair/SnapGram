@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import { useUserContext } from '@/context/AuthContext'
 
 const AuthLayout = () => {
-  const [isAuthenticated, setisAuthenticated] = useState(false)
+  const { isAuthenticated } = useUserContext()
 
   return (
     <>
@@ -10,7 +10,7 @@ const AuthLayout = () => {
         <Navigate to={'/'} />
       ): (
         <>
-          <section className='flex flex-1 justify-center items-center mx-7 md:mx-1'>
+          <section className='flex flex-1 justify-center items-center mx-7 md:mx-5'>
             <Outlet/>
           </section>
 

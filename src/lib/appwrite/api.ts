@@ -6,25 +6,25 @@ import { ID, Query } from "appwrite";
 
 export const createUserAccount = async (user: INewUser) => {
     try {
-        const newAccount = await account.create(
-            ID.unique(),
-            user.email,
-            user.password,
-            user.name
-        )
+        // Create the account in appwrite
+        const newAccount = await account.create({
+            userId: ID.unique(),
+            email: user.email,
+            password: user.password,
+            name: user.name
+        })
         if (!newAccount) throw Error
 
         const avatarUrl = avatars.getInitials(user.name)
 
-        const newUser = await saveUserToDB(
-            {
-                accountID: newAccount.$id,
-                email: newAccount.email,
-                name: newAccount.name,
-                username: user.username,
-                imageURL: avatarUrl
-            }
-        )
+        // Save the account to a seperate Users table to use it further
+        const newUser = await saveUserToDB({
+            accountID: newAccount.$id,
+            email: newAccount.email,
+            name: newAccount.name,
+            username: user.username,
+            imageURL: avatarUrl
+        })
 
         return newUser
     } catch (error) {
@@ -56,11 +56,15 @@ export const saveUserToDB = async (user:{
 }
 
 export const SignInAccount = async (user:{
-    email: string
-    password: string
-}) => {
+        email: string
+        password: string
+    }) => {
     try {
-        const session = await account.createEmailPasswordSession(user.email, user.password)
+        // Create a session
+        const session = await account.createEmailPasswordSession({
+            email: user.email, 
+            password: user.password
+        })
 
         return session
         
@@ -74,7 +78,10 @@ export const getCurrentUser = async () => {
     try {
         const currentAccount = await account.get()
 
-        if (!currentAccount) throw Error
+        if (!currentAccount) {
+            console.log("Didn't find the user")
+            return false
+        }
         
         const currentUser = await table.listRows({
             databaseId: appwrite_config.databaseID,
@@ -84,12 +91,21 @@ export const getCurrentUser = async () => {
             ]
         })
 
-        if (!currentUser) throw Error
+        if (!currentUser) throw Error("Not getting the User using the account from database")
         
         return currentUser.rows[0]
         
     } catch (error) {
         console.log(error)
-        return null
+        return false
+    }
+}
+
+export const signOutAccount = async () => {
+    try {
+        const session = await account.deleteSession({sessionId: 'current'}) // Delete the current session
+        return session
+    } catch (error) {
+        console.log(error)
     }
 }

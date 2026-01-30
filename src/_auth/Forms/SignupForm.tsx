@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { toast } from "sonner"
-import { useCreateUserAccount } from "@/lib/react-query/queriesAndMutations";
+import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
 
 
@@ -19,6 +19,7 @@ const SignupForm = () => {
   const navigate = useNavigate()
 
   const { mutateAsync: CreateUserAccount, isPending: isCreatingUser } = useCreateUserAccount()
+  const { mutateAsync: signInAccount } = useSignInAccount()
   const { checkAuthUser, isLoading: isUserLoading} = useUserContext()
 
 
@@ -40,26 +41,26 @@ const SignupForm = () => {
       return
     }
 
-    // const session = await signInAccount({
-    //   email: data.email, 
-    //   password:data.password
-    // })
+    const session = await signInAccount({
+      email: data.email, 
+      password:data.password
+    })
 
-    // if (!session) {
-    //   toast('Failed to sign in')
-    //   return
-    // }
+    if (!session) {
+      toast('Failed to sign in')
+      return
+    }
     // wait for Appwrite session to fully register
     await new Promise((res) => setTimeout(res, 300))
 
-    const isLoggedIn = await checkAuthUser()
+    // const isLoggedIn = await checkAuthUser()
 
-    if (isLoggedIn){
-      form.reset()
-      navigate('/')
-    } else {
-      toast('Failed to authenticate user')
-    }
+    // // if (isLoggedIn){
+    // //   form.reset()
+    // //   navigate('/')
+    // // } else {
+    // //   toast('Failed to authenticate user')
+    // // }
   }
   return (
     <div className="w-full flex flex-col justify-center items-center">
@@ -69,7 +70,7 @@ const SignupForm = () => {
         <h1 className="text-2xl text-gray-200 mt-2">Create a New Account</h1>
         <p className="text-sm text-gray-500 my-4 ">To use Snapgram please enter your account details</p>
       </div>
-      <Card className="w-full sm:max-w-md">
+      <Card className="w-full sm:max-w-md bg-indigo-950/15">
         <CardContent>
           <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>

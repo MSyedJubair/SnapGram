@@ -1,10 +1,10 @@
+import React, { createContext, useContext, useState, useEffect } from 'react'
 import { getCurrentUser } from '@/lib/appwrite/api'
 import type { IUser } from '@/types'
-import React, {createContext, useContext, useState, useEffect} from 'react'
-import { useNavigate } from 'react-router-dom'
 
 
-export const INITIAL_USER = {
+// Setting an initial state of the user so TS knows what're we doing
+const INITIAL_USER = {
     id: '',
     name: '',
     username: '',
@@ -15,23 +15,32 @@ export const INITIAL_USER = {
 
 const INITIAL_STATE = {
     user: INITIAL_USER,
-    isLoading:false,
+    isLoading:true,
     isAuthenticated: false,
     setUser: () => {},
     setIsAuthenticated: () => {},
     checkAuthUser: async () => false as boolean
 }
 
-const AuthContext = createContext(INITIAL_STATE)
+type IContextType = {
+  user: IUser;
+  isLoading: boolean;
+  setUser: React.Dispatch<React.SetStateAction<IUser>>;
+  isAuthenticated: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  checkAuthUser: () => Promise<boolean>;
+};
 
+// Creating the Context using React Hook    
+const AuthContext = createContext<IContextType>(INITIAL_STATE)
+
+// Creating the Provider - Using which the data will be passed
 export const AuthProvider = ({children}:{children: React.ReactNode}) => {
     const [User, setUser] = useState<IUser>(INITIAL_USER)
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-    const navigate = useNavigate()
-
-    const checkAuthUser = async () => {
+    const checkAuthUser = async (): Promise<boolean> => {
         setIsLoading(true)
         try {
             const currentUser = await getCurrentUser()
@@ -45,27 +54,25 @@ export const AuthProvider = ({children}:{children: React.ReactNode}) => {
                     imageUrl: currentUser?.imageURL,
                     bio: currentUser?.bio
                 })
+                
                 setIsAuthenticated(true)
                 return true
             }
-
+            setIsAuthenticated(false)
             return false
-
             
         } catch (error) {
             console.log(error)
+            setIsAuthenticated(false)
             return false
         } finally {
             setIsLoading(false)
         }
     }
 
-    useEffect(() => { 
-        if (localStorage.getItem('cookieFallback') === '[]'){
-            navigate('/sign-in')
-        }
+    useEffect(() => {
         checkAuthUser()
-         }, [navigate])
+        }, [])
 
     const value = {
         user: User,
@@ -83,4 +90,5 @@ export const AuthProvider = ({children}:{children: React.ReactNode}) => {
   )
 }
 
+// Creating Custom Hook
 export const useUserContext = () => useContext(AuthContext)
