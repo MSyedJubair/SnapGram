@@ -7,17 +7,20 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { SignupValidation } from "@/lib/Validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner"
 import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
+import { Spinner } from "@/components/ui/spinner";
 
 
 
 const SignupForm = () => {
   const { mutateAsync: CreateUserAccount, isPending: isCreatingUser } = useCreateUserAccount()
   const { mutateAsync: signInAccount } = useSignInAccount()
-  const { isLoading: isUserLoading} = useUserContext()
+  const { isLoading: isUserLoading, checkAuthUser} = useUserContext()
+
+  const navigate = useNavigate()
 
 
   const form = useForm<z.infer<typeof SignupValidation>>({
@@ -50,14 +53,14 @@ const SignupForm = () => {
     // wait for Appwrite session to fully register
     await new Promise((res) => setTimeout(res, 300))
 
-    // const isLoggedIn = await checkAuthUser()
+    const isLoggedIn = await checkAuthUser()
 
-    // // if (isLoggedIn){
-    // //   form.reset()
-    // //   navigate('/')
-    // // } else {
-    // //   toast('Failed to authenticate user')
-    // // }
+    if (isLoggedIn){
+      form.reset()
+      navigate('/')
+    } else {
+      toast('Failed to authenticate user')
+    }
   }
   return (
     <div className="w-full flex flex-col justify-center items-center">
@@ -170,6 +173,7 @@ const SignupForm = () => {
               form="form-rhf-demo"
               disabled={isCreatingUser || isUserLoading}
             >
+              <Spinner/>
               {isCreatingUser ? (
                 "Creating Account..."
               ) : isUserLoading ? (
