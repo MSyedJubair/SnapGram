@@ -1,7 +1,6 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form" 
-import { useNavigate } from "react-router-dom";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -16,11 +15,9 @@ import { useUserContext } from "@/context/AuthContext";
 
 
 const SignupForm = () => {
-  const navigate = useNavigate()
-
   const { mutateAsync: CreateUserAccount, isPending: isCreatingUser } = useCreateUserAccount()
   const { mutateAsync: signInAccount } = useSignInAccount()
-  const { checkAuthUser, isLoading: isUserLoading} = useUserContext()
+  const { isLoading: isUserLoading} = useUserContext()
 
 
   const form = useForm<z.infer<typeof SignupValidation>>({

@@ -13,10 +13,10 @@ const LeftSideBar = () => {
   const { mutateAsync: signOut, isSuccess } = useSignoutAccount()
   const { user } = useUserContext()
 
-  useEffect(() => { if (isSuccess) navigate(0)}, [isSuccess])
+  useEffect(() => { if (isSuccess) navigate(0)}, [isSuccess, navigate])
 
   return (
-    <nav className='hidden md:flex px-6 py-10 flex-col justify-between min-w-[270px] bg-dark-2'>
+    <nav className='hidden md:flex px-6 py-10 flex-col justify-between min-w-67.5 bg-dark-2'>
       <div className='flex flex-col gap-11'>
         <Link to={'/'}>
           <img src="./assets/images/logo.svg" alt="logo" width={170} height={36} />
