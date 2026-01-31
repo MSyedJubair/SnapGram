@@ -19,8 +19,16 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "@/context/AuthContext";
 
+export interface Post extends Models.Document {
+  caption: string;
+  location?: string;
+  Tags?: string[];
+  mediaUrl?: string;
+  userId: string;
+}
+
 type Props = {
-  post?: Models.Document;
+  post?:Post
 };
 
 const PostForm = ({ post }: Props) => {
@@ -35,7 +43,7 @@ const PostForm = ({ post }: Props) => {
       caption: post ? post?.caption : "",
       file: [],
       location: post ? post?.location : "",
-      tags: post ? post?.tag.join(",") : "",
+      tags: post ? post?.Tags?.join(",") : "",
     },
   });
 
@@ -81,7 +89,7 @@ const PostForm = ({ post }: Props) => {
                   </FieldLabel>
                   <FileUploader
                     fieldChange={field.onChange}
-                    mediaUrl={post?.mediaUrl}
+                    mediaUrl={post?.mediaUrl || ''}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
