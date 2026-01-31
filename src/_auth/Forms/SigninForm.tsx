@@ -150,11 +150,17 @@ const SigninForm = () => {
               form="form-rhf-demo"
               disabled={isUserLogginin || isUserLoading}
             >
-              <Spinner/>
+              
               {isUserLogginin ? (
-                "Logining Account..."
+                <div className="flex flex-row gap-2">
+                  <Spinner/>
+                  Logining Account...
+                </div>
               ) : isUserLoading ? (
-                "Verifying..."
+                <div className="flex flex-row gap-2">
+                  <Spinner/>
+                  <p>Verifying...</p>
+                </div>
               ) : (
                 "Sign In"
               )}

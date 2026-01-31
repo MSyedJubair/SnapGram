@@ -173,11 +173,17 @@ const SignupForm = () => {
               form="form-rhf-demo"
               disabled={isCreatingUser || isUserLoading}
             >
-              <Spinner/>
+              
               {isCreatingUser ? (
-                "Creating Account..."
+                <div className="flex flex-row gap-2">
+                  <Spinner/>
+                  <p>Creating Account...</p>
+                </div>
               ) : isUserLoading ? (
-                "Verifying..."
+                <div className="flex flex-row gap-2">
+                  <Spinner/>
+                  <p>Verifying...</p>
+                </div>
               ) : (
                 "Sign Up"
               )}

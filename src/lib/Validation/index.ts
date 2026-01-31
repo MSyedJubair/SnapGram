@@ -33,3 +33,20 @@ export const SigninValidation = z.object({
     .min(8, "Password must be at least 8 characters.")
     .max(32, "Password must be at most 32 characters."),
 });
+
+export const postValidation = z.object({
+  caption: z
+    .string()
+    .min(5, "Are you even writing caption broo...")
+    .max(1200, "Caption Can't be that long bruh..."),
+  file: z.custom<File[]>(),
+  location: z
+    .string()
+    .min(5, "Are you even writing caption broo...")
+    .max(1200, "Caption Can't be that long bruh..."),
+  tags: z
+    .string()
+    .min(5, "Are you even writing caption broo...")
+    .max(1200, "Caption Can't be that long bruh..."),
+  
+})
