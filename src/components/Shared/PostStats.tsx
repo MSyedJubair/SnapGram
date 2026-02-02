@@ -1,8 +1,18 @@
 import { useDeleteSavePost, useGetSaves, useLikePost, useSavePost } from "@/lib/react-query/queriesAndMutations";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+
+type INewPost = {
+  $id: string;
+  userId: string;
+  caption: string;
+  file: File[];
+  location?: string;
+  tags?: string;
+  userLikes?: string[];
+};
 
 type PostProps = {
-  post: any;
+  post: INewPost;
   userId: string;
 };
 
@@ -21,7 +31,7 @@ const PostStats = ({post, userId}:PostProps) => {
 
   const isSaved = !!savedDoc
 
-  const handleLike = (e:React.MouseEvent<HTMLImageElement, MouseEvent>) => {
+  const handleLike = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();    
 
     let likesArray = [...likesList]
@@ -37,7 +47,7 @@ const PostStats = ({post, userId}:PostProps) => {
     likePost({ postId: post.$id, likesArray });
   }
 
-  const handleSave = (e:React.MouseEvent<HTMLImageElement, MouseEvent>) => {
+  const handleSave = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation()
 
     if (isSaved){
@@ -52,7 +62,7 @@ const PostStats = ({post, userId}:PostProps) => {
       
       {/* Left Side - Like */}
       <button
-        onClick={(e) => { handleLike(e) }}
+        onClick={handleLike}
         className="flex items-center gap-2 group transition"
       >
         <div className="p-2 rounded-full bg-dark-3 group-hover:bg-primary-500/20 transition">
