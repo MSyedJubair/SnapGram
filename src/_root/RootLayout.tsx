@@ -17,7 +17,7 @@ const RootLayout = () => {
   }
 
   return (
-    <div className='w-full md:flex'>
+    <div className='w-full md:flex overflow-hidden'>
       <TopBar/>
       <LeftSideBar/>
 

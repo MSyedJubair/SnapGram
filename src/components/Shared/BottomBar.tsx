@@ -19,7 +19,8 @@ const BottomBar = () => {
                 items-center
                 gap-1
                 rounded-lg
-                p-3
+                px-2
+                py-3
                 base-medium
                 hover:bg-[#877EFF]
                 transition

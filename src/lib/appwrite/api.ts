@@ -172,9 +172,9 @@ export const uploadFile = async (file: File) => {
 
 export const getFilePreview = (fileId: string) => {
     try {
-        const fileUrl = storage.getFilePreview({
+        const fileUrl = storage.getFileView({
             bucketId: appwrite_config.storageID,
-            fileId: fileId,
+            fileId: fileId
         })
         return fileUrl
     } catch (error) {
@@ -195,3 +195,105 @@ export const deleteFile = async (fileId:string) => {
     }
 }
 
+export const getRecentPosts = async () => {
+    try {
+        const posts = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.postCollectionID,
+            queries: [Query.orderDesc('$createdAt')]
+        })
+        
+        if (!posts) {
+            throw Error
+        }
+
+        console.log(posts.rows);
+        
+
+        return posts.rows
+    } catch (error) {
+        console.log(error);
+        return []
+    }
+}
+
+export const savePost = async (userId:string, postId: string) => {
+    try {
+        const updatedPost = await table.createRow({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.saveCollectionID,
+            rowId: ID.unique(),
+            data:{
+                user: userId,
+                post: postId
+            }
+        })
+
+        if (!updatedPost) throw Error
+
+        return updatedPost
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const getSaves = async () => {
+    try {
+        const currentAccount = await account.get()
+        const currectUser = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.userCollectionID,
+            queries: [Query.equal('accountID', currentAccount.$id)]
+        })
+
+        if (!getCurrentUser) throw Error
+
+        const saves = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.saveCollectionID,
+            queries: [Query.equal('user', currectUser.rows[0].$id)]
+        })
+
+        if (!saves) (console.log('No saves'))
+
+        return saves.rows
+        
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const deleteSavePost = async (savedRecordID:string) => {
+    try {
+        const status = await table.deleteRow({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.saveCollectionID,
+            rowId: savedRecordID
+        })
+
+        if (!status) throw Error
+        
+        return status
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const likeThePost = async (postId:string, likesArray:string[]) => {
+    try {
+        const updatedRow = table.updateRow({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.postCollectionID,
+            rowId: postId,
+            data: {
+                userLikes: likesArray
+            }
+        })
+
+        return updatedRow
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
