@@ -205,10 +205,7 @@ export const getRecentPosts = async () => {
         
         if (!posts) {
             throw Error
-        }
-
-        console.log(posts.rows);
-        
+        }        
 
         return posts.rows
     } catch (error) {
@@ -394,5 +391,31 @@ export const getAllUsers = async () => {
         return users.rows
     } catch (error) {
         console.log(error)
+    }
+}
+
+export const getAllPosts = async (pageParam: number | null) => {
+    try {
+        const queries = [Query.orderDesc('$createdAt'), Query.limit(3)]
+
+        if (pageParam) {
+            queries.push(Query.cursorAfter(pageParam))
+        }
+
+        const posts = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.postCollectionID,
+            queries
+        })
+        
+        if (!posts) {
+            throw Error
+        }
+
+        return posts.rows
+
+    } catch (error) {
+        console.log(error)
+        throw Error
     }
 }

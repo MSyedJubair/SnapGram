@@ -6,8 +6,9 @@ const AllUsers = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex gap-4 justify-center items-center h-screen w-full">
         <Spinner />
+        <p>Loading All users</p>
       </div>
     );
   }
