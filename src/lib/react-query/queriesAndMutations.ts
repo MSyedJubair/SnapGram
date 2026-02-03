@@ -1,4 +1,4 @@
-import { createPost, createUserAccount, deleteSavePost, getCurrentUser, getPost, getRecentPosts, getSaves, likeThePost, savePost, SignInAccount, signOutAccount, updatePost } from '../appwrite/api'
+import { createPost, createUserAccount, deleteSavePost, getCurrentUser, getPost, getPostByIds, getRecentPosts, getSaves, likeThePost, savePost, SignInAccount, signOutAccount, updatePost } from '../appwrite/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { INewPost, INewUser } from '../../types'
 import { QUERY_KEYS } from './QueryKeys'
@@ -44,15 +44,33 @@ export const useSavePost = () => {
 
     return useMutation({
         mutationFn: ({postId, userId}:{postId: string, userId: string}) => savePost(userId, postId),
+        onMutate: async ({postId, userId}) => {
+            // Cancel outgoing refetches
+            await queryClient.cancelQueries({
+                queryKey: ['getSaves']
+            })
+
+            // Snapshot previous data
+            const previousSaves = queryClient.getQueryData(['getSaves'])
+
+            // Optimistically update cache
+            queryClient.setQueryData(['getSaves'], (old: any) => [
+                ...old,
+                { post: postId, userId }
+            ])
+
+            return { previousSaves }
+        },
+        onError: (err, variables, context) => {
+            // Rollback on error
+            if (context?.previousSaves) {
+                queryClient.setQueryData(['getSaves'], context.previousSaves)
+            }
+        },
         onSuccess: () => {
+            // Only invalidate if needed
             queryClient.invalidateQueries({
-                queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
-            })
-            queryClient.invalidateQueries({
-                queryKey: [QUERY_KEYS.GET_POSTS]
-            })
-            queryClient.invalidateQueries({
-                queryKey: [QUERY_KEYS.GET_CURRENT_USER]
+                queryKey: ['getSaves']
             })
         }
     })
@@ -62,16 +80,25 @@ export const useDeleteSavePost = () => {
 
     return useMutation({
         mutationFn: (saveRecordId:string) => deleteSavePost(saveRecordId),
+        onMutate: async (saveRecordId) => {
+            await queryClient.cancelQueries({
+                queryKey: ['getSaves']
+            })
+
+            const previousSaves = queryClient.getQueryData(['getSaves'])
+
+            queryClient.setQueryData(['getSaves'], (old: any) =>
+                old.filter((save: any) => save.$id !== saveRecordId)
+            )
+
+            return { previousSaves }
+        },
+        onError: (err, variables, context) => {
+            if (context?.previousSaves) {
+                queryClient.setQueryData(['getSaves'], context.previousSaves)
+            }
+        },
         onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
-            })
-            queryClient.invalidateQueries({
-                queryKey: [QUERY_KEYS.GET_POSTS]
-            })
-            queryClient.invalidateQueries({
-                queryKey: [QUERY_KEYS.GET_CURRENT_USER]
-            })
             queryClient.invalidateQueries({
                 queryKey: ['getSaves']
             })
@@ -117,6 +144,12 @@ export const useGetPost = (postId: string) => {
         queryFn: () =>  getPost(postId) 
     })
 }
+export const useGetSavedPosts = (postIds: string[]) => {
+  return useQuery({
+    queryKey: ['GetSavedPosts', postIds],
+    queryFn: () => getPostByIds(postIds)
+  });
+};
 export const useUpdatePost = () => {
     return useMutation({
         mutationFn: ({postId, post}:{postId:string, post:INewPost}) => updatePost(postId, post)

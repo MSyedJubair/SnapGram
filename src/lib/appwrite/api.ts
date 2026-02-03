@@ -364,3 +364,19 @@ export const updatePost = async (postId:string, post:INewPost) => {
         console.log(error)
     }
 }
+
+export const getPostByIds = async (postIDs:string[]) => {
+    try {
+        const posts = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.postCollectionID,
+            queries: [Query.equal('$id', postIDs), Query.orderDesc('$createdAt')]
+        })
+
+        if (!posts) throw Error
+
+        return posts.rows
+    } catch (error) {
+        console.log(error);
+    }
+}
