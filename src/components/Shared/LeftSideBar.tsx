@@ -19,11 +19,11 @@ const LeftSideBar = () => {
     <nav className='hidden md:flex px-6 py-10 flex-col justify-between min-w-67.5 bg-dark-2'>
       <div className='flex flex-col gap-11'>
         <Link to={'/'}>
-          <img src="./assets/images/logo.svg" alt="logo" width={170} height={36} />
+          <img src="../assets/images/logo.svg" alt="logo" width={170} height={36} />
         </Link>
 
         <Link to={`/profile${user.id}`} className='flex items-center gap-3'>
-            <img src={user.imageUrl || './assets/icons/profile-placeholder.svg'} alt="Profile-Photo" className='h-8 w-8 rounded-full'/>
+            <img src={user.imageUrl || '../assets/icons/profile-placeholder.svg'} alt="Profile-Photo" className='h-8 w-8 rounded-full'/>
             <div className='flex flex-col'>
               <p className='text-[18px] font-bold leading-[140%]'>{user.name}</p>
               <p className='text-[14px] font-normal leading-[140%] text-gray-400'>@{user.username}</p>
@@ -46,7 +46,7 @@ const LeftSideBar = () => {
         </ul>
       </div>
       <Button onClick={() => { signOut() }} variant={'ghost'} className='flex gap-4 items-center justify-start hover:bg-transparent hover:text-white'>
-        <img src="./assets/icons/logout.svg" alt="Logout" width={24}/>
+        <img src="../assets/icons/logout.svg" alt="Logout" width={24}/>
         <p className='text-[14px] font-medium leading-[140%] lg:text-[16px] lg:font-medium lg:leading-[140%]'>Logout</p>
       </Button>
     </nav>

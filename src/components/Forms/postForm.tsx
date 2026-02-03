@@ -1,46 +1,43 @@
+import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+
+import { useUpdatePost, useCreatePost } from "@/lib/react-query/queriesAndMutations";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { useUserContext } from "@/context/AuthContext";
+import { postValidation } from "@/lib/Validation";
+import FileUploader from "../Shared/FileUploader";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "../ui/textarea";
-import FileUploader from "../Shared/FileUploader";
-import { postValidation } from "@/lib/Validation";
 import type { Models } from "appwrite";
-import { useCreatePost } from "@/lib/react-query/queriesAndMutations";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import { useUserContext } from "@/context/AuthContext";
 
 export interface Post extends Models.Document {
-  caption: string;
+  Caption: string;
   location?: string;
   Tags?: string[];
-  mediaUrl?: string;
+  imageURL?: URL;
   userId: string;
 }
 
 type Props = {
-  post?:Post
+  post?:Post,
+  action:  "Create" | "Update"
 };
 
-const PostForm = ({ post }: Props) => {
+const PostForm = ({ post, action }: Props) => {
   const navigate = useNavigate();
   const { user } = useUserContext();
-  const { mutateAsync: createPost, isPending: isPostCreating } =
-    useCreatePost();
+  const { mutateAsync: createPost, isPending: isPostCreating } = useCreatePost();
+  const { mutateAsync: updatePost, isPending: isUpdatingPost } = useUpdatePost()
 
   const form = useForm<z.infer<typeof postValidation>>({
     resolver: zodResolver(postValidation),
     defaultValues: {
-      caption: post ? post?.caption : "",
+      caption: post ? post?.Caption : "",
       file: [],
       location: post ? post?.location : "",
       tags: post ? post?.Tags?.join(",") : "",
@@ -49,10 +46,24 @@ const PostForm = ({ post }: Props) => {
 
   async function onSubmit(data: z.infer<typeof postValidation>) {
     // Create new post
-    const newPost = await createPost({ ...data, userId: user.id });
+    if (action === 'Create'){
+      const newPost = await createPost({ ...data, userId: user.id });
 
-    if (!newPost) {
+      if (!newPost) {
       toast("Something Went wrong.....");
+    }
+    } else {
+      // Update Post
+      const updatedPost = await updatePost({
+        postId: post?.$id || '',
+        post: {
+          ...data,
+          userId: user.id
+        }
+      })
+      if (!updatedPost) {
+        toast("Something Went wrong.....");
+      }
     }
 
     navigate("/");
@@ -89,7 +100,7 @@ const PostForm = ({ post }: Props) => {
                   </FieldLabel>
                   <FileUploader
                     fieldChange={field.onChange}
-                    mediaUrl={post?.mediaUrl || ''}
+                    mediaUrl={post?.imageURL}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -135,8 +146,8 @@ const PostForm = ({ post }: Props) => {
           <Button type="button" variant="outline" onClick={() => form.reset()}>
             Cancle
           </Button>
-          <Button type="submit" form="form-rhf-demo" disabled={isPostCreating}>
-            Submit
+          <Button type="submit" form="form-rhf-demo" disabled={isPostCreating || isUpdatingPost}>
+            {action === 'Create' ? 'Submit' : 'Update' }
           </Button>
         </Field>
       </CardFooter>

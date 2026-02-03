@@ -19,6 +19,8 @@ export type INewPost = {
   file: File[];
   location?: string;
   tags?: string;
+  imageURL?: URL | string,
+  imageId? : string
 };
 
 export type IUpdatePost = {

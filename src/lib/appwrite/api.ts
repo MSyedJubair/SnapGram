@@ -297,3 +297,70 @@ export const likeThePost = async (postId:string, likesArray:string[]) => {
         
     }
 }
+
+export const getPost = async (postId: string) => {
+    try {
+        const post = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.postCollectionID,
+            queries: [Query.equal('$id', postId)]
+        })
+
+        if (!post) throw Error
+
+        return post.rows[0]
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const updatePost = async (postId:string, post:INewPost) => {
+    const hasFileToUpdate = post.file.length > 0;
+
+    try {
+        let image = {
+            imageUrl: post.imageURL,
+            imageId: post.imageId,
+        };
+        if (hasFileToUpdate) {
+            // Upload image to storage
+            const uploadedFile = await uploadFile(post.file[0] || '')   
+            
+            if (!uploadedFile) console.log('No Uploaded File')
+        
+            // Get file url
+            const fileUrl = await getFilePreview(uploadedFile?.$id || '')
+        
+            // Can't get the file so delete itttt
+            if (!fileUrl) {
+                await await deleteFile(uploadedFile?.$id || '')
+                throw Error
+            }
+
+            image = { ...image, imageUrl: fileUrl, imageId: uploadedFile?.$id };
+        }
+
+        // Convert tags to array
+        const tags = post.tags?.replace(/ /g, '').split(',') || [] 
+        
+        const updatedPost = await table.updateRow({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.postCollectionID,
+            rowId: postId,
+            data: {
+                Creator: post.userId,
+                Caption: post.caption,
+                imageURL: image.imageUrl,
+                imageID: image.imageId,
+                location: post.location,
+                Tags: tags
+            }
+        })
+
+        if (!updatedPost) throw Error
+
+        return updatedPost
+    } catch (error) {
+        console.log(error)
+    }
+}

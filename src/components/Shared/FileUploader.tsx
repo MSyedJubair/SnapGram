@@ -1,21 +1,19 @@
 import { useCallback, useState } from "react";
-import { useDropzone, FileWithPath } from "react-dropzone";
+import { useDropzone, type FileWithPath } from "react-dropzone";
 import { Button } from "../ui/button";
 
-type props = {
-  fieldChange: (FILES: File[]) => void;
-  mediaUrl: string;
+type FileUploaderProps = {
+  fieldChange: (files: File[]) => void;
+  mediaUrl?: URL;
 };
 
-const FileUploader = ({ fieldChange, mediaUrl }: props) => {
-  const [file, setFile] = useState<File[]>([]);
-  const [fileURL, setFileURL] = useState("");
+const FileUploader = ({ fieldChange, mediaUrl }: FileUploaderProps) => {
+  const [fileURL, setFileURL] = useState<string | undefined>(mediaUrl?.toString());
 
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
       if (!acceptedFiles.length) return;
 
-      setFile(acceptedFiles);
       fieldChange(acceptedFiles);
       setFileURL(URL.createObjectURL(acceptedFiles[0]));
     },
@@ -37,7 +35,7 @@ const FileUploader = ({ fieldChange, mediaUrl }: props) => {
       {fileURL ? (
         <>
           <div className="flex flex-1 justify-center w-full p-5 lg:p-10">
-            <img src={fileURL} alt="image" className="file_uploader-img" />
+            <img src={fileURL.toString()} alt="image" className="file_uploader-img" />
           </div>
           <p className="text-gray-300 text-center small-regular w-full p-4 border-t border-t-gray-700">Click or drag photo to replace</p>
         </>

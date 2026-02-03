@@ -15,7 +15,7 @@ const PostCard = ({ post }) => {
           <Link to={`/profile/${post.Creator.$id}`}>
             <img
               src={
-                post.Creator?.imageURL ||
+                user?.imageUrl ||
                 "/assets/icons/profile-placeholder.svg"
               }
               alt="creator"
@@ -25,7 +25,7 @@ const PostCard = ({ post }) => {
 
           <div className="flex flex-col">
             <p className="text-light-1 font-semibold text-base">
-              {post.Creator.name}
+              {user.name}
             </p>
             <div className="flex items-center gap-2 text-light-3 text-sm">
               <span>{multiFormatDateString(post.$createdAt)}</span>
@@ -39,7 +39,8 @@ const PostCard = ({ post }) => {
           </div>
         </div>
 
-        {user.id === post.Creator.$id && (
+
+        {user.id === post.Creator && (
           <Link
             to={`/update-post/${post.$id}`}
             className="p-2 rounded-lg hover:bg-dark-4 transition"
