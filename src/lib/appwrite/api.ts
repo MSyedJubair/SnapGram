@@ -380,3 +380,19 @@ export const getPostByIds = async (postIDs:string[]) => {
         console.log(error);
     }
 }
+
+export const getAllUsers = async () => {
+    try {
+        const users = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.userCollectionID,
+            queries: [Query.orderAsc('$createdAt')]
+        })
+
+        if (!users) throw Error
+
+        return users.rows
+    } catch (error) {
+        console.log(error)
+    }
+}

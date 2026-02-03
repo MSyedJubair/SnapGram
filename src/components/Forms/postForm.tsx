@@ -69,7 +69,7 @@ const PostForm = ({ post, action }: Props) => {
     navigate("/");
   }
 
-  return (
+  return (  
     <Card className="w-full max-w-5xl h-auto flex flex-col gap-9 bg-transparent">
       <CardContent>
         <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>

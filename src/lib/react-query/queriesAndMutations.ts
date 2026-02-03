@@ -1,4 +1,4 @@
-import { createPost, createUserAccount, deleteSavePost, getCurrentUser, getPost, getPostByIds, getRecentPosts, getSaves, likeThePost, savePost, SignInAccount, signOutAccount, updatePost } from '../appwrite/api'
+import { createPost, createUserAccount, deleteSavePost, getAllUsers, getCurrentUser, getPost, getPostByIds, getRecentPosts, getSaves, likeThePost, savePost, SignInAccount, signOutAccount, updatePost } from '../appwrite/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { INewPost, INewUser } from '../../types'
 import { QUERY_KEYS } from './QueryKeys'
@@ -153,5 +153,11 @@ export const useGetSavedPosts = (postIds: string[]) => {
 export const useUpdatePost = () => {
     return useMutation({
         mutationFn: ({postId, post}:{postId:string, post:INewPost}) => updatePost(postId, post)
+    })
+}
+export const useGetusers = () => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_USERS],
+        queryFn: () => getAllUsers()
     })
 }
