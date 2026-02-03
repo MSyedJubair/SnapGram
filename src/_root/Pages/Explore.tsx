@@ -1,19 +1,24 @@
 import PostCard from "@/components/Shared/PostCard";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useInfinitePosts } from "@/lib/react-query/queriesAndMutations";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
 const Explore = () => {
   const { ref, inView } = useInView();
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-  } = useInfinitePosts();
+  const [ searchQuery, setsearchQuery ] = useState('')
+
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfinitePosts(debouncedQuery);
 
   const posts = data?.pages.flatMap((page) => page) || [];
 
@@ -22,23 +27,6 @@ const Explore = () => {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  if (isLoading) {
-    return (
-      <div className="flex gap-4 justify-center items-center h-screen w-full">
-        <Spinner />
-        <p>Loading Your Feed</p>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="text-center text-red-400 mt-4">
-        Oops! Something went wrong while fetching users.
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-1 overflow-y-auto bg-dark-1">
@@ -53,17 +41,42 @@ const Explore = () => {
           </p>
         </div>
 
-        {/* Posts List */}
-        <div className="flex flex-col gap-6">
-          {posts.map((post) => (
-            <div
-              key={post.$id}
-              className="bg-dark-2 rounded-2xl p-5 border border-dark-4 transition hover:border-dark-3"
-            >
-              <PostCard post={post} />
-            </div>
-          ))}
+        <div className="flex flex-row gap-2 mb-7"> 
+          <img src="../assets/icons/search.svg" alt="Search" />
+          <Input placeholder="Search For Post" onChange={(e) => setsearchQuery(e.target.value)} />
         </div>
+
+        {
+          isLoading ? (
+            <div className="flex flex-col gap-6">
+              {posts.map((post) => (
+                <div
+                  key={post.$id}
+                  className="bg-dark-2 rounded-2xl p-5 border border-dark-4 transition hover:border-dark-3"
+                >
+                  <PostCard post={post} />
+                </div>
+              ))}
+            </div>
+          ) : isError? (
+            <div className="text-center text-red-400 mt-4">
+              Oops! Something went wrong while fetching users.
+            </div>
+          ) : (
+            <div className="flex flex-col gap-6">
+              {posts.map((post) => (
+                <div
+                  key={post.$id}
+                  className="bg-dark-2 rounded-2xl p-5 border border-dark-4 transition hover:border-dark-3"
+                >
+                  <PostCard post={post} />
+                </div>
+              ))}
+            </div>
+          )
+        }
+
+        
 
         {/* Infinite Scroll Trigger */}
         {hasNextPage && (

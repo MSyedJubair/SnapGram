@@ -394,12 +394,16 @@ export const getAllUsers = async () => {
     }
 }
 
-export const getAllPosts = async (pageParam: number | null) => {
+export const getAllPosts = async (pageParam: number | null, searchQuery='') => {
     try {
         const queries = [Query.orderDesc('$createdAt'), Query.limit(3)]
 
         if (pageParam) {
-            queries.push(Query.cursorAfter(pageParam))
+            queries.push(Query.cursorAfter(pageParam.toString()))
+        }
+
+        if (searchQuery){
+            queries.push(Query.search('Caption', searchQuery))
         }
 
         const posts = await table.listRows({

@@ -161,10 +161,10 @@ export const useGetusers = () => {
         queryFn: () => getAllUsers()
     })
 }
-export const useInfinitePosts = () => {
+export const useInfinitePosts = (searchQuery='') => {
     return useInfiniteQuery({
-        queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
-        queryFn: ({ pageParam }) => getAllPosts(pageParam),
+        queryKey: [QUERY_KEYS.GET_INFINITE_POSTS, searchQuery],
+        queryFn: ({ pageParam }) => getAllPosts(pageParam, searchQuery),
         getNextPageParam: (lastPage) => {
             if (lastPage?.length === 0) return undefined
 
