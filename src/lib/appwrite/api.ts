@@ -1,4 +1,4 @@
-import type { INewPost, INewUser } from "../../types";
+import type { INewPost, INewUser, IPost } from "../../types";
 import { account, appwrite_config, avatars, storage, table } from "./config";
 import { ID, Query } from "appwrite";
 
@@ -33,13 +33,13 @@ export const createUserAccount = async (user: INewUser) => {
     }
 }
 
-export const saveUserToDB = async (user:{
-        accountID: string
-        email: string
-        name: string
-        imageURL: string
-        username: string
-    }) => { 
+export const saveUserToDB = async (user: {
+    accountID: string
+    email: string
+    name: string
+    imageURL: string
+    username: string
+}) => {
     try {
         const newUser = await table.createRow({
             databaseId: appwrite_config.databaseID,
@@ -55,19 +55,19 @@ export const saveUserToDB = async (user:{
     }
 }
 
-export const SignInAccount = async (user:{
-        email: string
-        password: string
-    }) => {
+export const SignInAccount = async (user: {
+    email: string
+    password: string
+}) => {
     try {
         // Create a session
         const session = await account.createEmailPasswordSession({
-            email: user.email, 
+            email: user.email,
             password: user.password
         })
 
         return session
-        
+
     } catch (error) {
         console.log(error)
         return null
@@ -82,7 +82,7 @@ export const getCurrentUser = async () => {
             console.log("Didn't find the user")
             return false
         }
-        
+
         const currentUser = await table.listRows({
             databaseId: appwrite_config.databaseID,
             tableId: appwrite_config.userCollectionID,
@@ -92,9 +92,9 @@ export const getCurrentUser = async () => {
         })
 
         if (!currentUser) throw Error("Not getting the User using the account from database")
-        
+
         return currentUser.rows.length > 0 ? currentUser.rows[0] : null
-        
+
     } catch (error) {
         console.log(error)
         return false
@@ -103,18 +103,18 @@ export const getCurrentUser = async () => {
 
 export const signOutAccount = async () => {
     try {
-        const session = await account.deleteSession({sessionId: 'current'}) // Delete the current session
+        const session = await account.deleteSession({ sessionId: 'current' }) // Delete the current session
         return session
     } catch (error) {
         console.log(error)
     }
 }
 
-export const createPost = async (post:INewPost) => {
+export const createPost = async (post: INewPost) => {
     try {
         // Upload image to storage
-        const uploadedFile = await uploadFile(post.file[0])   
-        
+        const uploadedFile = await uploadFile(post.file[0])
+
         if (!uploadedFile) throw Error
 
         // Get file url
@@ -127,7 +127,7 @@ export const createPost = async (post:INewPost) => {
         }
 
         // Convert tags to array
-        const tags = post.tags?.replace(/ /g, '').split(',') || [] 
+        const tags = post.tags?.replace(/ /g, '').split(',') || []
 
         // Save post to database
         const newPost = await table.createRow({
@@ -145,9 +145,9 @@ export const createPost = async (post:INewPost) => {
         })
 
         if (!newPost) {
-            await deleteFile(uploadedFile?.$id || '')   
+            await deleteFile(uploadedFile?.$id || '')
             throw Error
-        }     
+        }
 
         return newPost
 
@@ -182,7 +182,7 @@ export const getFilePreview = (fileId: string) => {
     }
 }
 
-export const deleteFile = async (fileId:string) => {
+export const deleteFile = async (fileId: string) => {
     try {
         storage.deleteFile({
             bucketId: appwrite_config.storageID,
@@ -191,7 +191,7 @@ export const deleteFile = async (fileId:string) => {
         return true
     } catch (error) {
         console.log(error);
-        return false        
+        return false
     }
 }
 
@@ -202,10 +202,10 @@ export const getRecentPosts = async () => {
             tableId: appwrite_config.postCollectionID,
             queries: [Query.orderDesc('$createdAt')]
         })
-        
+
         if (!posts) {
             throw Error
-        }        
+        }
 
         return posts.rows
     } catch (error) {
@@ -214,13 +214,13 @@ export const getRecentPosts = async () => {
     }
 }
 
-export const savePost = async (userId:string, postId: string) => {
+export const savePost = async (userId: string, postId: string) => {
     try {
         const updatedPost = await table.createRow({
             databaseId: appwrite_config.databaseID,
             tableId: appwrite_config.saveCollectionID,
             rowId: ID.unique(),
-            data:{
+            data: {
                 user: userId,
                 post: postId
             }
@@ -254,13 +254,13 @@ export const getSaves = async () => {
         if (!saves) (console.log('No saves'))
 
         return saves.rows
-        
+
     } catch (error) {
         console.log(error);
     }
 }
 
-export const deleteSavePost = async (savedRecordID:string) => {
+export const deleteSavePost = async (savedRecordID: string) => {
     try {
         const status = await table.deleteRow({
             databaseId: appwrite_config.databaseID,
@@ -269,7 +269,7 @@ export const deleteSavePost = async (savedRecordID:string) => {
         })
 
         if (!status) throw Error
-        
+
         return status
 
     } catch (error) {
@@ -277,7 +277,7 @@ export const deleteSavePost = async (savedRecordID:string) => {
     }
 }
 
-export const likeThePost = async (postId:string, likesArray:string[]) => {
+export const likeThePost = async (postId: string, likesArray: string[]) => {
     try {
         const updatedRow = table.updateRow({
             databaseId: appwrite_config.databaseID,
@@ -291,7 +291,7 @@ export const likeThePost = async (postId:string, likesArray:string[]) => {
         return updatedRow
     } catch (error) {
         console.log(error);
-        
+
     }
 }
 
@@ -311,7 +311,7 @@ export const getPost = async (postId: string) => {
     }
 }
 
-export const updatePost = async (postId:string, post:INewPost) => {
+export const updatePost = async (postId: string, post: INewPost) => {
     const hasFileToUpdate = post.file.length > 0;
 
     try {
@@ -321,13 +321,13 @@ export const updatePost = async (postId:string, post:INewPost) => {
         };
         if (hasFileToUpdate) {
             // Upload image to storage
-            const uploadedFile = await uploadFile(post.file[0] || '')   
-            
+            const uploadedFile = await uploadFile(post.file[0] || '')
+
             if (!uploadedFile) console.log('No Uploaded File')
-        
+
             // Get file url
             const fileUrl = await getFilePreview(uploadedFile?.$id || '')
-        
+
             // Can't get the file so delete itttt
             if (!fileUrl) {
                 await await deleteFile(uploadedFile?.$id || '')
@@ -338,8 +338,8 @@ export const updatePost = async (postId:string, post:INewPost) => {
         }
 
         // Convert tags to array
-        const tags = post.tags?.replace(/ /g, '').split(',') || [] 
-        
+        const tags = post.tags?.replace(/ /g, '').split(',') || []
+
         const updatedPost = await table.updateRow({
             databaseId: appwrite_config.databaseID,
             tableId: appwrite_config.postCollectionID,
@@ -362,7 +362,7 @@ export const updatePost = async (postId:string, post:INewPost) => {
     }
 }
 
-export const getPostByIds = async (postIDs:string[]) => {
+export const getPostByIds = async (postIDs: string[]) => {
     try {
         const posts = await table.listRows({
             databaseId: appwrite_config.databaseID,
@@ -394,7 +394,7 @@ export const getAllUsers = async () => {
     }
 }
 
-export const getAllPosts = async (pageParam: number | null, searchQuery='') => {
+export const getAllPosts = async (pageParam: number | null, searchQuery = '') => {
     try {
         const queries = [Query.orderDesc('$createdAt'), Query.limit(3)]
 
@@ -402,7 +402,7 @@ export const getAllPosts = async (pageParam: number | null, searchQuery='') => {
             queries.push(Query.cursorAfter(pageParam.toString()))
         }
 
-        if (searchQuery){
+        if (searchQuery) {
             queries.push(Query.search('Caption', searchQuery))
         }
 
@@ -411,12 +411,15 @@ export const getAllPosts = async (pageParam: number | null, searchQuery='') => {
             tableId: appwrite_config.postCollectionID,
             queries
         })
-        
+
         if (!posts) {
             throw Error
         }
 
-        return posts.rows
+        return posts.rows.map((post: any) => ({
+            ...post,
+            tags: post.Tags, // Mapping Tags to tags to match IPost if needed, or just casting
+        })) as IPost[];
 
     } catch (error) {
         console.log(error)

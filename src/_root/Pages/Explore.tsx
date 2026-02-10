@@ -7,7 +7,7 @@ import { useInView } from "react-intersection-observer";
 
 const Explore = () => {
   const { ref, inView } = useInView();
-  const [ searchQuery, setsearchQuery ] = useState('')
+  const [searchQuery, setsearchQuery] = useState('')
 
   const [debouncedQuery, setDebouncedQuery] = useState('')
 
@@ -41,7 +41,7 @@ const Explore = () => {
           </p>
         </div>
 
-        <div className="flex flex-row gap-2 mb-7"> 
+        <div className="flex flex-row gap-2 mb-7">
           <img src="../assets/icons/search.svg" alt="Search" />
           <Input placeholder="Search For Post" onChange={(e) => setsearchQuery(e.target.value)} />
         </div>
@@ -58,7 +58,7 @@ const Explore = () => {
                 </div>
               ))}
             </div>
-          ) : isError? (
+          ) : isError ? (
             <div className="text-center text-red-400 mt-4">
               Oops! Something went wrong while fetching users.
             </div>
@@ -76,7 +76,7 @@ const Explore = () => {
           )
         }
 
-        
+
 
         {/* Infinite Scroll Trigger */}
         {hasNextPage && (

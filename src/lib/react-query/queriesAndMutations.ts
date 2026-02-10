@@ -1,6 +1,6 @@
 import { createPost, createUserAccount, deleteSavePost, getAllPosts, getAllUsers, getCurrentUser, getPost, getPostByIds, getRecentPosts, getSaves, likeThePost, savePost, SignInAccount, signOutAccount, updatePost } from '../appwrite/api'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { INewPost, INewUser } from '../../types'
+import type { INewPost, INewUser, IPost } from '../../types'
 import { QUERY_KEYS } from './QueryKeys'
 
 export const useCreateUserAccount = () => {
@@ -11,17 +11,17 @@ export const useCreateUserAccount = () => {
 export const useSignInAccount = () => {
     return useMutation({
         mutationFn: (user: {
-            email:string
-            password:string
-        }) => { return SignInAccount(user)}
+            email: string
+            password: string
+        }) => { return SignInAccount(user) }
     })
 }
 export const useSignoutAccount = () => {
     return useMutation({
-        mutationFn: () => { return signOutAccount()}
+        mutationFn: () => { return signOutAccount() }
     })
 }
-export const useCreatePost = () => { 
+export const useCreatePost = () => {
     const QueryClient = useQueryClient()
 
     return useMutation({
@@ -36,15 +36,15 @@ export const useCreatePost = () => {
 export const useRecentPosts = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
-        queryFn: () => getRecentPosts() 
+        queryFn: () => getRecentPosts()
     })
 }
 export const useSavePost = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({postId, userId}:{postId: string, userId: string}) => savePost(userId, postId),
-        onMutate: async ({postId, userId}) => {
+        mutationFn: ({ postId, userId }: { postId: string, userId: string }) => savePost(userId, postId),
+        onMutate: async ({ postId, userId }) => {
             // Cancel outgoing refetches
             await queryClient.cancelQueries({
                 queryKey: ['getSaves']
@@ -79,7 +79,7 @@ export const useDeleteSavePost = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: (saveRecordId:string) => deleteSavePost(saveRecordId),
+        mutationFn: (saveRecordId: string) => deleteSavePost(saveRecordId),
         onMutate: async (saveRecordId) => {
             await queryClient.cancelQueries({
                 queryKey: ['getSaves']
@@ -109,7 +109,7 @@ export const useLikePost = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({postId, likesArray}:{postId: string, likesArray: string[]}) => likeThePost(postId, likesArray),
+        mutationFn: ({ postId, likesArray }: { postId: string, likesArray: string[] }) => likeThePost(postId, likesArray),
         onSuccess: (data) => {
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.$id]
@@ -141,18 +141,18 @@ export const useGetSaves = () => {
 export const useGetPost = (postId: string) => {
     return useQuery({
         queryKey: [QUERY_KEYS.GET_POST_BY_ID],
-        queryFn: () =>  getPost(postId) 
+        queryFn: () => getPost(postId)
     })
 }
 export const useGetSavedPosts = (postIds: string[]) => {
-  return useQuery({
-    queryKey: ['GetSavedPosts', postIds],
-    queryFn: () => getPostByIds(postIds)
-  });
+    return useQuery({
+        queryKey: ['GetSavedPosts', postIds],
+        queryFn: () => getPostByIds(postIds)
+    });
 };
 export const useUpdatePost = () => {
     return useMutation({
-        mutationFn: ({postId, post}:{postId:string, post:INewPost}) => updatePost(postId, post)
+        mutationFn: ({ postId, post }: { postId: string, post: INewPost }) => updatePost(postId, post)
     })
 }
 export const useGetusers = () => {
@@ -161,10 +161,10 @@ export const useGetusers = () => {
         queryFn: () => getAllUsers()
     })
 }
-export const useInfinitePosts = (searchQuery='') => {
-    return useInfiniteQuery({
+export const useInfinitePosts = (searchQuery = '') => {
+    return useInfiniteQuery<IPost[]>({
         queryKey: [QUERY_KEYS.GET_INFINITE_POSTS, searchQuery],
-        queryFn: ({ pageParam }) => getAllPosts(pageParam, searchQuery),
+        queryFn: ({ pageParam }) => getAllPosts(pageParam as number | null, searchQuery),
         getNextPageParam: (lastPage) => {
             if (lastPage?.length === 0) return undefined
 

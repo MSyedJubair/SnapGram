@@ -1,3 +1,5 @@
+import { Models } from "appwrite";
+
 export type INavLink = {
   imgURL: string;
   route: string;
@@ -12,6 +14,16 @@ export type IUpdateUser = {
   imageUrl: URL | string;
   file: File[];
 };
+
+export interface IPost extends Models.Document {
+  Caption?: string;
+  imageURL?: URL;
+  imageID?: string;
+  location?: string;
+  Tags: string[];
+  userLikes?: string[];
+  Creator?:string
+}
 
 export type INewPost = {
   userId: string;

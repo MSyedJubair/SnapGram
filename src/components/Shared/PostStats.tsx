@@ -1,18 +1,10 @@
 import { useDeleteSavePost, useGetSaves, useLikePost, useSavePost } from "@/lib/react-query/queriesAndMutations";
+import type { IPost } from "@/types";
 import { useState } from "react";
 
-type INewPost = {
-  $id: string;
-  userId: string;
-  caption: string;
-  file: File[];
-  location?: string;
-  tags?: string;
-  userLikes?: string[];
-};
 
 type PostProps = {
-  post: INewPost;
+  post: IPost;
   userId: string;
 };
 
