@@ -1,27 +1,23 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form" 
-import { useNavigate } from "react-router-dom";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate, Link } from "react-router-dom";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { SigninValidation } from "@/lib/Validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
-import { toast } from "sonner"
+import { toast } from "sonner";
 import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
 import { Spinner } from "@/components/ui/spinner";
 
-
-
 const SigninForm = () => {
-  const navigate = useNavigate()
-  const { checkAuthUser, isLoading: isUserLoading} = useUserContext()
-
-  const {mutateAsync: signInAccount, isPending: isUserLogginin} = useSignInAccount()
-
+  const navigate = useNavigate();
+  const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
+  const { mutateAsync: signInAccount, isPending: isUserLogginin } =
+    useSignInAccount();
 
   const form = useForm<z.infer<typeof SigninValidation>>({
     resolver: zodResolver(SigninValidation),
@@ -33,45 +29,46 @@ const SigninForm = () => {
   });
 
   async function onSubmit(data: z.infer<typeof SigninValidation>) {
-
     const session = await signInAccount({
-      email: data.email, 
-      password:data.password
-    })
+      email: data.email,
+      password: data.password,
+    });
 
     if (!session) {
-      toast('Failed to Login')
-      return
+      toast("Failed to Login");
+      return;
     }
 
-    // wait for Appwrite session to fully register bcz its slow 😃
-    await new Promise((res) => setTimeout(res, 300))
+    await new Promise((res) => setTimeout(res, 300));
+    const isLoggedIn = await checkAuthUser();
 
-    const isLoggedIn = await checkAuthUser()
-
-    if (isLoggedIn){
-      form.reset()
-      navigate('/')
+    if (isLoggedIn) {
+      form.reset();
+      navigate("/");
     } else {
-      toast('Failed to authenticate user')
+      toast("Failed to authenticate user");
     }
   }
+
   return (
-    <div className="w-full flex flex-col justify-center items-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-slate-950 to-black px-4 min-w-full">
+      <Card className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl">
+        <CardContent className="p-8">
+          {/* Header */}
+          <div className="flex flex-col items-center mb-6">
+            <img src="./assets/images/logo.svg" alt="logo" width={100} className="mb-4" />
+            <h1 className="text-2xl font-semibold text-white">
+              Welcome Back
+            </h1>
+            <p className="text-sm text-gray-400 mt-2 text-center">
+              Sign in to continue to Snapgram
+            </p>
+          </div>
 
-      {/* // Header */}
-      <div className="flex flex-col justify-center items-center">
-        <img src="./assets/images/logo.svg" alt="" />
-
-        <h1 className="text-2xl text-gray-200 mt-2">Welcome Back! Login to your account</h1>
-        <p className="text-sm text-gray-500 my-4 ">To use Snapgram please enter your account details</p>
-      </div>
-
-      {/* // Main form */}
-      <Card className="w-full sm:max-w-md bg-indigo-950/15">
-        <CardContent>
-          <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
-            <FieldGroup>
+          {/* Form */}
+          <form id="signin-form" onSubmit={form.handleSubmit(onSubmit)}>
+            <FieldGroup className="space-y-5">
+              {/* Username */}
               <Controller
                 name="username"
                 control={form.control}
@@ -81,9 +78,9 @@ const SigninForm = () => {
                     <Input
                       {...field}
                       id="username"
-                      aria-invalid={fieldState.invalid}
                       placeholder="tony_stark"
                       autoComplete="off"
+                      className="bg-white/5 border-white/10 focus:ring-2 focus:ring-indigo-500"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -91,6 +88,8 @@ const SigninForm = () => {
                   </Field>
                 )}
               />
+
+              {/* Email */}
               <Controller
                 name="email"
                 control={form.control}
@@ -100,9 +99,9 @@ const SigninForm = () => {
                     <Input
                       {...field}
                       id="email"
-                      aria-invalid={fieldState.invalid}
                       placeholder="tonystark@gmail.com"
                       autoComplete="off"
+                      className="bg-white/5 border-white/10 focus:ring-2 focus:ring-indigo-500"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -110,21 +109,21 @@ const SigninForm = () => {
                   </Field>
                 )}
               />
+
+              {/* Password */}
               <Controller
                 name="password"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="password">
-                      Password
-                    </FieldLabel>
+                    <FieldLabel htmlFor="password">Password</FieldLabel>
                     <Input
                       {...field}
                       id="password"
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Enter Your Password"
-                      autoComplete="off"
                       type="password"
+                      placeholder="Enter your password"
+                      autoComplete="off"
+                      className="bg-white/5 border-white/10 focus:ring-2 focus:ring-indigo-500"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -135,44 +134,52 @@ const SigninForm = () => {
             </FieldGroup>
           </form>
         </CardContent>
-        <CardFooter>
-          <Field orientation="horizontal">
+
+        <CardFooter className="flex flex-col gap-4 p-8 pt-0">
+          <div className="flex w-full gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => form.reset()}
               disabled={isUserLogginin || isUserLoading}
+              className="w-1/3 border-white/20 text-gray-300 hover:bg-white/10"
             >
               Reset
             </Button>
-            <Button 
-              type="submit" 
-              form="form-rhf-demo"
+
+            <Button
+              type="submit"
+              form="signin-form"
               disabled={isUserLogginin || isUserLoading}
+              className="w-2/3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
             >
-              
               {isUserLogginin ? (
-                <div className="flex flex-row gap-2">
-                  <Spinner/>
-                  Logining Account...
+                <div className="flex items-center gap-2">
+                  <Spinner />
+                  Signing In...
                 </div>
               ) : isUserLoading ? (
-                <div className="flex flex-row gap-2">
-                  <Spinner/>
-                  <p>Verifying...</p>
+                <div className="flex items-center gap-2">
+                  <Spinner />
+                  Verifying...
                 </div>
               ) : (
                 "Sign In"
               )}
             </Button>
-          </Field>
+          </div>
+
+          <div className="text-sm text-gray-400 text-center pt-4 border-t border-white/10">
+            Don’t have an account?{" "}
+            <Link
+              to="/sign-up"
+              className="text-indigo-400 hover:text-indigo-300 font-medium"
+            >
+              Create one
+            </Link>
+          </div>
         </CardFooter>
       </Card>
-
-      {/* // Footer */}
-      <div className="text-gray-400 mt-4">
-        Don't have an account? {<Link to={'/sign-up'}><span className="text-blue-400">Create one!</span></Link>}
-      </div>
     </div>
   );
 };
