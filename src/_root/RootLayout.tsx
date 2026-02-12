@@ -17,7 +17,7 @@ const RootLayout = () => {
         <section className="flex flex-1 h-full">
           <div className="w-full h-screen flex items-center justify-center g-6">
             <Spinner className="size-8" />
-            <p>Loading...</p>
+            <p>Checking Authentication Status...</p>
           </div>
         </section>
 

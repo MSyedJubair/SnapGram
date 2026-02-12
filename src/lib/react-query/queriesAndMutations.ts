@@ -1,4 +1,4 @@
-import { createPost, createUserAccount, deleteSavePost, getAllPosts, getAllUsers, getCurrentUser, getPost, getPostByIds, getRecentPosts, getSaves, likeThePost, savePost, SignInAccount, signOutAccount, updatePost } from '../appwrite/api'
+import { createPost, createUserAccount, deleteSavePost, followUser, getAllPosts, getAllUsers, getCurrentUser, getPost, getPostByIds, getPostByUserId, getRecentPosts, getSaves, getUser, likeThePost, savePost, SignInAccount, SignInWithGoogle, signOutAccount, updatePost } from '../appwrite/api'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { INewPost, INewUser, IPost } from '../../types'
 import { QUERY_KEYS } from './QueryKeys'
@@ -37,6 +37,13 @@ export const useRecentPosts = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
         queryFn: () => getRecentPosts()
+    })
+}
+export const useGetUserPosts = (userId: string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_USER_POSTS, userId],
+        queryFn: () => getPostByUserId(userId),
+        enabled: !!userId
     })
 }
 export const useSavePost = () => {
@@ -155,6 +162,12 @@ export const useUpdatePost = () => {
         mutationFn: ({ postId, post }: { postId: string, post: INewPost }) => updatePost(postId, post)
     })
 }
+export const useGetUserById = (userId: string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, userId],
+        queryFn: () => getUser(userId)
+    })
+}
 export const useGetusers = () => {
     return useQuery({
         queryKey: [QUERY_KEYS.GET_USERS],
@@ -171,5 +184,22 @@ export const useInfinitePosts = (searchQuery = '') => {
             return lastPage[lastPage?.length - 1].$id
         },
         initialPageParam: null,
+    })
+}
+export const useFollowUser = () => {
+    return useMutation({
+        mutationFn: (userId: string) => followUser(userId)
+    })
+}
+export const useSignInWithGoogle = () => {
+    const queryClient = useQueryClient()
+    
+    return useMutation({
+        mutationFn: () => SignInWithGoogle(),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_CURRENT_USER]
+            })
+        }
     })
 }

@@ -9,13 +9,14 @@ import { SigninValidation } from "@/lib/Validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
+import { useSignInAccount, useSignInWithGoogle } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
 import { Spinner } from "@/components/ui/spinner";
 
 const SigninForm = () => {
   const navigate = useNavigate();
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
+  const { mutateAsync: signInWithGoogle, isPending: isUserLoggininUsingGoogle } = useSignInWithGoogle()
   const { mutateAsync: signInAccount, isPending: isUserLogginin } =
     useSignInAccount();
 
@@ -178,6 +179,28 @@ const SigninForm = () => {
               Create one
             </Link>
           </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => signInWithGoogle()}
+            disabled={isUserLogginin || isUserLoading}
+            className="w-full border-white/20 text-gray-300 hover:bg-white/10"
+          >
+            {isUserLoggininUsingGoogle ? (
+              <div className="flex items-center gap-2">
+                <Spinner />
+                Signing In...
+              </div>
+            ) : isUserLoading ? (
+              <div className="flex items-center gap-2">
+                <Spinner />
+                Verifying...
+              </div>
+            ) : (
+              "Sign In with Google"
+            )}
+          </Button>
         </CardFooter>
       </Card>
     </div>

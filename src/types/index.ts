@@ -1,4 +1,4 @@
-import { Models } from "appwrite";
+import { type Models } from "appwrite";
 
 export type INavLink = {
   imgURL: string;

@@ -1,6 +1,6 @@
 import type { INewPost, INewUser, IPost } from "../../types";
 import { account, appwrite_config, avatars, storage, table } from "./config";
-import { ID, Query } from "appwrite";
+import { ID, OAuthProvider, Query } from "appwrite";
 
 
 
@@ -25,6 +25,11 @@ export const createUserAccount = async (user: INewUser) => {
             username: user.username,
             imageURL: avatarUrl
         })
+
+        if (!newUser) {
+            await account.deleteSession({sessionId: 'current'});
+            throw new Error("Failed to save user in DB");
+        }
 
         return newUser
     } catch (error) {
@@ -74,9 +79,25 @@ export const SignInAccount = async (user: {
     }
 }
 
+export const SignInWithGoogle = () => {
+    try {
+        account.createOAuth2Session({
+            provider: OAuthProvider.Google,
+            success: 'http://localhost:5173/',
+            failure: 'http://localhost:5173/'
+        })
+
+    } catch (error) {
+        console.log(error)
+        return null
+    }
+}
+
 export const getCurrentUser = async () => {
     try {
         const currentAccount = await account.get()
+
+        console.log(currentAccount)
 
         if (!currentAccount) {
             console.log("Didn't find the user")
@@ -91,9 +112,25 @@ export const getCurrentUser = async () => {
             ]
         })
 
-        if (!currentUser) throw Error("Not getting the User using the account from database")
+        // if (!currentUser) throw Error("Not getting the User using the account from database")
 
-        return currentUser.rows.length > 0 ? currentUser.rows[0] : null
+        // return currentUser.rows.length > 0 ? currentUser.rows[0] : null
+
+        if (currentUser.rows.length > 0) {
+            return currentUser.rows[0]
+        }
+
+        const avatarUrl = avatars.getInitials(currentAccount.name)
+
+        const newUser = await saveUserToDB({
+            accountID: currentAccount.$id,
+            email: currentAccount.email,
+            name: currentAccount.name,
+            username: currentAccount.email.split('@')[0], // auto username
+            imageURL: avatarUrl
+        })
+
+        return newUser
 
     } catch (error) {
         console.log(error)
@@ -394,6 +431,22 @@ export const getAllUsers = async () => {
     }
 }
 
+export const getUser = async (userId:string) => {
+    try {
+        const user = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.userCollectionID,
+            queries: [Query.equal('$id', userId)]
+        })
+
+        if (!user) throw Error
+
+        return user.rows[0]
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export const getAllPosts = async (pageParam: number | null, searchQuery = '') => {
     try {
         const queries = [Query.orderDesc('$createdAt'), Query.limit(3)]
@@ -424,5 +477,55 @@ export const getAllPosts = async (pageParam: number | null, searchQuery = '') =>
     } catch (error) {
         console.log(error)
         throw Error
+    }
+}
+
+export const getPostByUserId = async (userId:string) => {
+    try {
+        const posts = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.postCollectionID,
+            queries: [Query.equal('Creator', userId)]
+        })
+
+        if (!posts) throw Error
+
+        return posts.rows
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const followUser = async (userId:string) => {
+    try {
+        const user = await getUser(userId)
+
+        if (!user) throw Error
+
+        const currectAccount = await account.get()
+
+        const currectUser = await table.listRows({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.userCollectionID,
+            queries: [Query.equal('accountID', currectAccount.$id)]
+        })
+
+        if (!currectUser) throw Error
+
+        const updatedUser = await table.updateRow({
+            databaseId: appwrite_config.databaseID,
+            tableId: appwrite_config.userCollectionID,
+            rowId: userId,
+            data: {
+                Followers: [...user.Followers, currectUser.rows[0].$id]
+            }
+        })
+
+        if (!updatedUser) throw Error
+
+        return updatedUser
+    } catch (error) {
+        console.log(error)
     }
 }

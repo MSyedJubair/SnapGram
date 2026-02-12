@@ -3,18 +3,32 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { SignupValidation } from "@/lib/Validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
+import {
+  useCreateUserAccount,
+  useSignInAccount,
+  useSignInWithGoogle,
+} from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
 import { Spinner } from "@/components/ui/spinner";
 
 const SignupForm = () => {
-  const { mutateAsync: CreateUserAccount, isPending: isCreatingUser } = useCreateUserAccount();
+  const { mutateAsync: CreateUserAccount, isPending: isCreatingUser } =
+    useCreateUserAccount();
+  const {
+    mutateAsync: signInWithGoogle,
+    isPending: isUserLoggininUsingGoogle,
+  } = useSignInWithGoogle();
   const { mutateAsync: signInAccount } = useSignInAccount();
   const { isLoading: isUserLoading, checkAuthUser } = useUserContext();
 
@@ -64,7 +78,12 @@ const SignupForm = () => {
       <Card className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl">
         <CardContent className="p-8">
           <div className="flex flex-col items-center mb-6">
-            <img src="./assets/images/logo.svg" alt="logo" width={100} className="mb-4" />
+            <img
+              src="./assets/images/logo.svg"
+              alt="logo"
+              width={100}
+              className="mb-4"
+            />
             <h1 className="text-2xl font-semibold text-white">
               Create Account
             </h1>
@@ -199,10 +218,35 @@ const SignupForm = () => {
 
           <div className="text-sm text-gray-400 text-center pt-4 border-t border-white/10">
             Already have an account?{" "}
-            <Link to="/sign-in" className="text-indigo-400 hover:text-indigo-300 font-medium">
+            <Link
+              to="/sign-in"
+              className="text-indigo-400 hover:text-indigo-300 font-medium"
+            >
               Login
             </Link>
           </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => signInWithGoogle()}
+            disabled={isUserLoggininUsingGoogle || isUserLoading}
+            className="w-full border-white/20 text-gray-300 hover:bg-white/10"
+          >
+            {isUserLoggininUsingGoogle ? (
+              <div className="flex items-center gap-2">
+                <Spinner />
+                Signing In...
+              </div>
+            ) : isUserLoading ? (
+              <div className="flex items-center gap-2">
+                <Spinner />
+                Verifying...
+              </div>
+            ) : (
+              "Sign In with Google"
+            )}
+          </Button>
         </CardFooter>
       </Card>
     </div>
