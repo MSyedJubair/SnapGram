@@ -1,9 +1,10 @@
-import PostCard from "@/components/Shared/PostCard";
+import ExploreCard from "@/components/Shared/ExploreCard";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useInfinitePosts } from "@/lib/react-query/queriesAndMutations";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
+import { Link } from "react-router-dom";
 
 const Explore = () => {
   const { ref, inView } = useInView();
@@ -41,36 +42,36 @@ const Explore = () => {
           </p>
         </div>
 
-        <div className="flex flex-row gap-2 mb-7">
+        <div className="flex flex-row gap-2 mb-30">
           <img src="../assets/icons/search.svg" alt="Search" />
           <Input placeholder="Search For Post" onChange={(e) => setsearchQuery(e.target.value)} />
         </div>
 
         {
           isLoading ? (
+            // <div className="flex flex-col gap-6">
+            //   {posts.map((post) => (
+            //     <div
+            //       key={post.$id}
+            //       className="bg-dark-2 rounded-2xl p-5 border border-dark-4 transition hover:border-dark-3"
+            //     >
+            //       <ExploreCard post={post} />
+            //     </div>
+            //   ))}
+            // </div>
             <div className="flex flex-col gap-6">
-              {posts.map((post) => (
-                <div
-                  key={post.$id}
-                  className="bg-dark-2 rounded-2xl p-5 border border-dark-4 transition hover:border-dark-3"
-                >
-                  <PostCard post={post} />
-                </div>
-              ))}
+              <Spinner />
             </div>
           ) : isError ? (
             <div className="text-center text-red-400 mt-4">
               Oops! Something went wrong while fetching users.
             </div>
           ) : (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-30">
               {posts.map((post) => (
-                <div
-                  key={post.$id}
-                  className="bg-dark-2 rounded-2xl p-5 border border-dark-4 transition hover:border-dark-3"
-                >
-                  <PostCard post={post} />
-                </div>
+                <Link to={`/posts/${post.$id}`}>
+                  <ExploreCard post={post} />
+                </Link>
               ))}
             </div>
           )

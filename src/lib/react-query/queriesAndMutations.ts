@@ -140,7 +140,7 @@ export const useGetSaves = () => {
 }
 export const useGetPost = (postId: string) => {
     return useQuery({
-        queryKey: [QUERY_KEYS.GET_POST_BY_ID],
+        queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId],
         queryFn: () => getPost(postId)
     })
 }

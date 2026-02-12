@@ -70,7 +70,7 @@ const LeftSideBar = () => {
 
         {/* USER PROFILE */}
         <Link
-          to={`/profile${user.id}`}
+          to={`/profile/${user.id}`}
           className={`flex items-center ${isOpen ? "gap-4 px-3 py-3" : "justify-center w-12 h-12"
             } rounded-xl bg-white/5 hover:bg-white/10 transition`}
         >

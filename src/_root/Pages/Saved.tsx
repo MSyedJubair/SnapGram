@@ -12,7 +12,7 @@ const Saved = () => {
   const { data: posts, isLoading, isError } = useGetSavedPosts(postIds);
 
   return (
-    <div className="flex flex-col flex-1 min-h-screen">
+    <div className="flex flex-col flex-1 min-h-screen overflow-y-auto">
       <div className="max-w-6xl mx-auto py-12 px-5 md:px-8 lg:px-14">
         {/* Header */}
         <h2 className="text-3xl md:text-4xl font-extrabold text-white text-center md:text-left mb-10">

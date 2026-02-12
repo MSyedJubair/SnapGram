@@ -61,8 +61,8 @@ const PostStats = ({post, userId}:PostProps) => {
           <img
             src={
                 isLiked ? 
-                './assets/icons/liked.svg' :
-                './assets/icons/like.svg'
+                '../assets/icons/liked.svg' :
+                '../assets/icons/like.svg'
             }
             alt="like"
             className="w-5 h-5"
