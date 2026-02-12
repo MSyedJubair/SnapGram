@@ -81,15 +81,19 @@ export const SignInAccount = async (user: {
 
 export const SignInWithGoogle = () => {
     try {
+        const env = import.meta.env.    VITE_VERCEL_ENV
+
         account.createOAuth2Session({
             provider: OAuthProvider.Google,
-            success: 'http://localhost:5173/',
-            failure: 'http://localhost:5173/'
+            success: env === 'development' ? 'http://localhost:5173/' : 'https://snapgram-syed.vercel.app/',
+            failure: env === 'development' ? 'http://localhost:5173/' : 'https://snapgram-syed.vercel.app/'
         })
+
+        return Promise.resolve(true)
 
     } catch (error) {
         console.log(error)
-        return null
+        return Promise.resolve(false)
     }
 }
 
