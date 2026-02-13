@@ -10,8 +10,9 @@ const PostDetails = () => {
   
   if (isLoading){
     return (
-      <div>
+      <div className="flex justify-center items-center w-full h-full min-h-[50vh]">
         <Spinner/>
+        <p className="text-gray-400">Loading Post...</p>
       </div>
     )
   }

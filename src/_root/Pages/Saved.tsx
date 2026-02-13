@@ -21,7 +21,7 @@ const Saved = () => {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex justify-center items-center gap-4 py-10">
+          <div className="flex justify-center h-full w-full items-center gap-4 py-10">
             <Spinner />
             <p className="text-gray-400 text-lg">Loading your saved posts...</p>
           </div>

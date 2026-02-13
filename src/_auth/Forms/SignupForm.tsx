@@ -21,16 +21,15 @@ import {
 } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
 import { Spinner } from "@/components/ui/spinner";
+import { useState } from "react";
 
 const SignupForm = () => {
-  const { mutateAsync: CreateUserAccount, isPending: isCreatingUser } =
-    useCreateUserAccount();
-  const {
-    mutateAsync: signInWithGoogle,
-    isPending: isUserLoggininUsingGoogle,
-  } = useSignInWithGoogle();
-  const { mutateAsync: signInAccount } = useSignInAccount();
+  const { mutateAsync: CreateUserAccount, isPending: isCreatingUser } = useCreateUserAccount();
+  const { mutateAsync: signInWithGoogle, isPending: isUserLoggininUsingGoogle } = useSignInWithGoogle();
   const { isLoading: isUserLoading, checkAuthUser } = useUserContext();
+  const { mutateAsync: signInAccount } = useSignInAccount();
+
+  const [ googleSignBtn, setGoogleSignBtn ] = useState(false)
 
   const navigate = useNavigate();
 
@@ -229,14 +228,14 @@ const SignupForm = () => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => signInWithGoogle()}
-            disabled={isUserLoggininUsingGoogle || isUserLoading}
+            onClick={() => {signInWithGoogle(); setGoogleSignBtn(true);}}
+            disabled={googleSignBtn || isUserLoading}
             className="w-full border-white/20 text-gray-300 hover:bg-white/10"
           >
-            {isUserLoggininUsingGoogle ? (
+            {googleSignBtn ? (
               <div className="flex items-center gap-2">
                 <Spinner />
-                Signing In...
+                Creating Account...
               </div>
             ) : isUserLoading ? (
               <div className="flex items-center gap-2">
@@ -244,7 +243,16 @@ const SignupForm = () => {
                 Verifying...
               </div>
             ) : (
-              "Sign In with Google"
+              <>
+                <img
+                  src="../assets/icons/google.svg"
+                  width={20}
+                  height={20}
+                  alt="google"
+                  className="invert"
+                />
+                Sign Up with Google
+              </>
             )}
           </Button>
         </CardFooter>

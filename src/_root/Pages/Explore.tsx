@@ -59,8 +59,9 @@ const Explore = () => {
             //     </div>
             //   ))}
             // </div>
-            <div className="flex flex-col gap-6">
-              <Spinner />
+            <div className="flex justify-center items-center h-screen text-light-2">
+              <Spinner className="size-8" />
+              <p className="text-gray-400">Loading Posts...</p>
             </div>
           ) : isError ? (
             <div className="text-center text-red-400 mt-4">
@@ -83,6 +84,7 @@ const Explore = () => {
         {hasNextPage && (
           <div ref={ref} className="flex justify-center py-10">
             <Spinner />
+            <p className="text-gray-400">Loading New Posts...</p>
           </div>
         )}
 

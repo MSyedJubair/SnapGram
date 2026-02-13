@@ -1,5 +1,6 @@
 import { useGetusers } from "@/lib/react-query/queriesAndMutations";
 import UserCard from "@/components/Shared/UserCard";
+import { Spinner } from "@/components/ui/spinner";
 
 const AllUsers = () => {
   const { data: creators, isLoading, isError } = useGetusers();
@@ -19,8 +20,8 @@ const AllUsers = () => {
         
         {isLoading && !creators ? (
           <div className="flex justify-center items-center w-full h-full min-h-[50vh]">
-            {/* Plain Tailwind Spinner */}
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+            <Spinner/>
+            <p className="text-gray-400">Loading...</p>
           </div>
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-7 w-full max-w-5xl">

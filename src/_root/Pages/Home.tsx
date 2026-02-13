@@ -1,4 +1,5 @@
 import PostCard from "@/components/Shared/PostCard";
+import { Spinner } from "@/components/ui/spinner";
 import { useRecentPosts } from "@/lib/react-query/queriesAndMutations";
 import type { IPost } from "@/types";
 
@@ -17,8 +18,10 @@ const Home = () => {
 
           {isGettingPosts && !posts ? (
             <div className="flex justify-center items-center w-full h-full min-h-[50vh]">
-              {/* Plain Tailwind Spinner */}
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+              <div className="flex justify-center items-center w-full h-full min-h-[50vh]">
+                <Spinner/>
+                <p className="text-gray-400">Loading...</p>
+              </div>
             </div>
           ) : (
             <ul className="flex flex-col flex-1 gap-9 w-full">

@@ -46,7 +46,7 @@ const Profile = () => {
       {/* HEADER / HERO SECTION */}
       <div className="relative bg-dark-2 border border-dark-4 rounded-3xl overflow-hidden shadow-xl">
         {/* Banner */}
-        <div className="h-40 bg-gradient-to-r from-primary-500/30 via-purple-600/30 to-pink-500/30" />
+        <div className="h-40 bg-linear-to-r from-primary-500/30 via-purple-600/30 to-pink-500/30" />
 
         {/* Profile Content */}
         <div className="px-8 pb-8">
